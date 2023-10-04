@@ -1,0 +1,114 @@
+# functions
+filePath="$(realpath .bash_dev)"
+fileName=${filePath##*/}
+
+clone() {
+    mkdir -p $1 && cp --verbose * -r $1
+}
+
+pjt() {
+	tree $1 -I "node_modules"
+}
+
+nodeProj () {
+    local path="$(pwd)"
+    
+    echo 'Digite o nome da pasta do projeto: '
+    read dirProj
+    
+    local fullPath=$path/$dirProj
+    
+    mkdir -p $fullPath
+    
+    cd $fullPath
+    
+    echo -e 'console.log("Hello world!")' > index.js
+    
+    yarn init --yes
+}
+
+killProcessByPort() {
+	npx kill-port $1
+}
+
+removeAllDocker() {
+	docker compose down --rmi local
+	docker compose down --remove-orphans
+	docker volume rm -f $(docker volume ls)	
+	docker image rm -f $(docker image ls)
+}
+
+vagas() {
+ #!/usr/bin/env node
+	bun run ~/development/scraping-vagas-frontend/index.ts
+}
+
+gitRepoInit() {
+	git init
+	git branch -m main
+	git add . 
+	git commit -m 'feat: add initial files'
+	git status 
+}
+
+cdf() {
+	mkdir -p $1
+	touch $1/$2
+}
+
+hello_dev() {
+    
+    declare -A functionDescriptions
+    
+    functionDescriptions["hello_dev"]="Exibe recursos disponíveis neste arquivo (${fileName})\n"
+
+    functionDescriptions["clone"]="Cria um novo diretório no caminho especificado pelo parâmetro\n\t\t\t\tcopiar todos o arquivos da pasta atual e colar na nova pasta\n"
+
+    functionDescriptions["killProcessByPort"]="Encerra todos os processos acontecendo em uma porta específica"
+
+    functionDescriptions["pjt"]="Project Tree — exibe todas as pastas do projeto apartir de um determinado caminho, através do comando tree\n\t\t\t\t\t(senão passar nenhum parâmetro a exibição começará apartir da  pasta raiz\n"
+		
+    functionDescriptions["nodeProj"]="Cria um projeto Node.js simples com um aquivo package.json e index.js\n"
+
+		functionDescriptions["removeAllDocker"]="Remove, containers, networks, volumes and images" 
+
+		functionDescriptions["gitRepoInit"]="Inicia uma repositório git e faz o primeitro commit" 
+
+		functionDescriptions["cdf"]="Create Directory and File — junção dos comando mkdir -p e touch[$1, $2], cria pastas e inseri um arquivo dento da ultima pasta" 
+
+    local ornament="*"
+    
+    printf '\n\n '
+    printf -- "$ornament%.0s" {1..100}
+    
+    printf -- "%.0s\n" {1..2}
+    echo -e "\tHello, my friend! you are using the source:\n\t\tFile: $fileName"
+    echo -e "\t\tFilepath: $filePath\n"
+    echo -e "\t\tAvailable Functions:"
+    
+    for functionName in "${!functionDescriptions[@]}"; do
+        echo -e "\t\t\t\e[1;34m$functionName\e[0m: ${functionDescriptions[$functionName]}"
+    done
+    
+    echo -e "\n\t\tAliases: "
+    grep --color=always -E "^alias" ${filePath} | sed 's/^/\t\t\t/'
+    printf "\n "
+    printf -- "$ornament%.0s" {1..100}
+    
+    printf -- "%.0s\n" {1..2}
+}
+
+# aliases
+
+# docker
+alias d-ps='docker container ps'
+alias d-i-ls='docker image ls'
+alias d-i-prun='docker image prune -a'
+
+# docker compose
+alias dc-up='docker compose up'
+alias dc-down='docker compose down'
+alias dc-log='docker compose logs -f'
+
+# font end development
+alias create-vite="dev; yarn create vite"
